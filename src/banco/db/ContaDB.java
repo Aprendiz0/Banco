@@ -5,6 +5,7 @@
  */
 package banco.db;
 
+import banco.modelo.Cliente;
 import banco.modelo.Conta;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -99,7 +100,7 @@ private static final String URL = "jdbc:sqlite:banco.db";
     }
 
     public int addConta(Conta c) {
-        int resultado = addConta(c.getAgencia(), c.getNumero(), c.getSaldo(), c.getCliente().getId());
+        int resultado = addConta(c.getAgencia(), c.getNumero(), c.getSaldo(), c.getCliente());
 
         try {
 
@@ -120,14 +121,20 @@ private static final String URL = "jdbc:sqlite:banco.db";
     }
 
     // adiciona uma pessoa
-    public int addConta(int agencia, int numero, double saldo, int idCliente) {
+    public int addConta(int agencia, int numero, double saldo, Cliente cliente) {
         int resultado = 0;
 
         try {
+            if(new ClienteDB().getPessoa(cliente.getId()) == null){
+                new ClienteDB().addCliente(cliente);
+            }else{
+                new ClienteDB().updateCliente(cliente);
+            }
+            
             insertNovo.setInt(1, agencia);
             insertNovo.setInt(2, numero);
             insertNovo.setDouble(3, saldo);
-            insertNovo.setInt(4, idCliente);
+            insertNovo.setInt(4, cliente.getId());
 
             // insere e retorna o numero de linhas atualizadas
             resultado = insertNovo.executeUpdate();
@@ -141,17 +148,23 @@ private static final String URL = "jdbc:sqlite:banco.db";
     }
 
     public int updateConta(Conta c) {
-        return updateConta(c.getId(), c.getAgencia(), c.getNumero(), c.getSaldo(), c.getCliente().getId());
+        return updateConta(c.getId(), c.getAgencia(), c.getNumero(), c.getSaldo(), c.getCliente());
     }
 
-    public int updateConta(int id, int agencia, int numero, double saldo, int idCliente) {
+    public int updateConta(int id, int agencia, int numero, double saldo, Cliente cliente) {
         int resultado = 0;
 
         try {
+            if(new ClienteDB().getPessoa(cliente.getId()) == null){
+                new ClienteDB().addCliente(cliente);
+            }else{
+                new ClienteDB().updateCliente(cliente);
+            }
+            
             update.setInt(1, agencia);
             update.setInt(2, numero);
             update.setDouble(3, saldo);
-            update.setInt(4, idCliente);
+            update.setInt(4, cliente.getId());
 
             update.setInt(5, id);
 
